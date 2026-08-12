@@ -1,0 +1,13 @@
+@"
+.venv/
+__pycache__/
+*.pyc
+mlruns/
+logs/
+models/
+data/raw/
+data/interim/
+data/processed/
+reports/*.csv
+.env
+"@ | Out-File -Encoding utf8 .gitignore

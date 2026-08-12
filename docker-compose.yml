@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build: .
+    image: macro-sentinel:latest
+    container_name: macro_sentinel_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  # Run once to (re)generate data/models before the dashboard has anything to show:
+  #   docker compose run --rm trainer
+  trainer:
+    build: .
+    image: macro-sentinel:latest
+    container_name: macro_sentinel_trainer
+    command: ["python", "main.py", "--stage", "all"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    profiles:
+      - tools
+
+  mlflow-ui:
+    build: .
+    image: macro-sentinel:latest
+    container_name: macro_sentinel_mlflow_ui
+    command: ["mlflow", "ui", "--backend-store-uri", "sqlite:///mlruns/mlflow.db", "--host", "0.0.0.0", "--port", "5000"]
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/app/mlruns
+    profiles:
+      - tools

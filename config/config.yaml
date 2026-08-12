@@ -1,0 +1,120 @@
+# ============================================================================
+# Macro Sentinel — Central Configuration
+# All pipeline stages read from this file. Do not hardcode paths/params
+# elsewhere; add new knobs here instead.
+# ============================================================================
+
+project:
+  name: "macro-sentinel"
+  version: "1.0.0"
+  random_seed: 42
+
+paths:
+  raw_dir: "data/raw"
+  interim_dir: "data/interim"
+  processed_dir: "data/processed"
+  external_dir: "data/external"
+  models_dir: "models"
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  logs_dir: "logs"
+
+raw_files:
+  country_metadata: "country_metadata.csv"
+  country_year_indicators: "country_year_indicators.csv"
+  economic_stress_score: "economic_stress_score.csv"
+  indicator_dictionary: "indicator_dictionary.csv"
+
+processed_files:
+  master_dataset: "master_dataset.csv"
+  feature_dataset: "feature_dataset.csv"
+  train_set: "train_set.csv"
+  test_set: "test_set.csv"
+  predictions: "latest_predictions.csv"
+
+data_validation:
+  required_indicator_columns:
+    - iso3
+    - country
+    - year
+    - gdp_growth_pct
+    - inflation_pct
+    - unemployment_pct
+    - debt_to_gdp_pct
+    - current_account_pct_gdp
+    - fx_volatility_index
+    - fx_reserves_months_imports
+    - political_stability_index
+    - government_effectiveness_index
+    - trade_openness_pct_gdp
+    - fdi_net_inflows_pct_gdp
+    - gdp_per_capita_usd
+  min_year: 1990
+  max_year: 2035
+  max_missing_ratio_per_column: 0.35
+  target_column: "economic_stress_score"
+  target_min: 0
+  target_max: 100
+
+feature_engineering:
+  entity_col: "iso3"
+  time_col: "year"
+  target_col: "economic_stress_score"
+  lag_periods: [1, 2, 3]
+  rolling_windows: [3, 5]
+  base_numeric_features:
+    - gdp_growth_pct
+    - inflation_pct
+    - unemployment_pct
+    - debt_to_gdp_pct
+    - current_account_pct_gdp
+    - fx_volatility_index
+    - fx_reserves_months_imports
+    - political_stability_index
+    - government_effectiveness_index
+    - trade_openness_pct_gdp
+    - fdi_net_inflows_pct_gdp
+    - gdp_per_capita_usd
+
+training:
+  test_size: 0.2
+  n_splits_cv: 3
+  models:
+    - linear_regression
+    - random_forest
+    - xgboost
+    - lightgbm
+  hyperparameter_search:
+    method: "random"   # "grid" or "random"
+    n_iter_random: 4
+  random_forest_grid:
+    n_estimators: [100, 200]
+    max_depth: [6, 10, null]
+    min_samples_leaf: [1, 2, 4]
+  xgboost_grid:
+    n_estimators: [100, 200]
+    max_depth: [3, 4, 6]
+    learning_rate: [0.05, 0.1]
+    subsample: [0.8, 1.0]
+  lightgbm_grid:
+    n_estimators: [100, 200]
+    num_leaves: [15, 31]
+    learning_rate: [0.05, 0.1]
+    subsample: [0.8, 1.0]
+
+risk_scoring:
+  categories:
+    - {label: "Low", min: 0, max: 30}
+    - {label: "Moderate", min: 30, max: 50}
+    - {label: "Elevated", min: 50, max: 70}
+    - {label: "High", min: 70, max: 85}
+    - {label: "Severe", min: 85, max: 101}
+
+mlflow:
+  tracking_uri: "sqlite:///mlruns/mlflow.db"
+  experiment_name: "macro_sentinel"
+  registered_model_name: "macro_sentinel_champion_model"
+
+logging:
+  level: "INFO"
+  log_file: "logs/pipeline.log"
