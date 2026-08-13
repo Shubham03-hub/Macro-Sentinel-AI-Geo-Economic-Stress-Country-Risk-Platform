@@ -1,133 +1,64 @@
-
 # 🌍 Macro Sentinel — AI Geo-Economic Stress & Country Risk Platform
 
-Macro Sentinel is an end-to-end machine learning platform that scores, ranks, and forecasts
-macroeconomic stress for countries — replacing slow, manually-maintained analyst watchlists
-with a reproducible, model-driven **Economic Stress Score**, a **Risk Category**, a **forward
-stress estimate**, and a transparent breakdown of what's driving the number.
+Macro Sentinel is an end-to-end machine learning platform that predicts **geo-economic stress scores** for countries and translates them into interpretable **risk categories**. It covers the full pipeline — data ingestion, preprocessing, feature engineering, model training/tracking with MLflow, evaluation, and an interactive Streamlit dashboard styled with a cinematic dark gradient theme.
 
-Built for the kind of desk that currently tracks country risk via quarterly rating-agency
-updates and spreadsheets: investment committees, sovereign bond desks, treasury teams, and
-corporates with cross-border exposure.
+## Dashboard Preview
 
----
+![Macro Sentinel Dashboard](reports/figures/dashboard_screenshot.png)
 
-## What it does
+*Country-level stress scoring, trend forecasting, and risk driver analysis — presented in a Netflix-inspired dark UI (crimson-to-black gradient, glowing serif headlines, glass-panel metric cards).*
 
-- **Ingests** country-year macroeconomic indicators (GDP growth, inflation, unemployment,
-  debt-to-GDP, FX volatility, political stability, governance, trade openness, FDI, and more)
-- **Validates & cleans** the panel data, handling missingness with country-level median
-  imputation and winsorizing legitimate crisis-period outliers rather than dropping them
-- **Engineers features**: lags, rolling windows, z-scores vs. each country's own history, and
-  interaction terms
-- **Trains and compares 4 models** (Linear Regression, Random Forest, XGBoost, LightGBM) with
-  cross-validated hyperparameter search, tracked in **MLflow**
-- **Promotes a champion model** and evaluates it on a held-out test set
-- **Generates predictions**: Economic Stress Score, Risk Category (Low → Severe), forecasted
-  stress trend, and a ranked driver-importance breakdown per country
-- **Serves it all** through an interactive **Streamlit** dashboard for benchmarking countries
-  and drilling into what's driving each score
+## Features
 
-### Current champion model performance (held-out test set)
+- **End-to-end pipeline** — ingestion → preprocessing → feature engineering → training → evaluation → prediction, runnable stage-by-stage or all at once via `main.py`
+- **Multiple models compared** — Linear Regression, Random Forest, XGBoost, and LightGBM, with the best-performing "champion" model selected automatically
+- **Experiment tracking** — all runs, metrics, and model artifacts logged and versioned with MLflow
+- **Cinematic Streamlit dashboard** — dark crimson-to-black gradient background, Georgia serif display headings with subtle glow, and glass-style metric/plot cards for browsing country-level stress scores, risk categories, and top feature drivers
+- **Config-driven** — pipeline behavior controlled through `config/config.yaml`, no hardcoded paths or parameters
+- **Tested** — unit tests for ingestion, feature engineering, validation, and training under `tests/`
 
-| Model | MAE | RMSE | R² | MAPE |
-|---|---|---|---|---|
-| Linear Regression | 2.72 | 3.38 | 0.964 | 4.35% |
-| Random Forest | 2.35 | 3.21 | 0.968 | 4.20% |
-| XGBoost | 2.29 | 2.97 | 0.972 | 3.99% |
-| **LightGBM (champion)** | **2.26** | **3.10** | **0.970** | **3.94%** |
-
-Top drivers of the stress score include `gdp_growth_pct`, `fx_volatility_index`,
-`debt_to_gdp_pct`, and `political_stability_index` (each evaluated both in level and as a
-z-score vs. the country's own history) — see `reports/driver_importance_top20.csv`.
-
----
-
-## Architecture
+## Project Structure
 
 ```
-Data Sources (data/raw/*.csv)
-      │
-      ▼
-Data Ingestion          → src/ingestion/data_ingestion.py
-      │
-      ▼
-Data Validation         → src/validation/schema_validation.py, data_validation.py
-      │
-      ▼
-Data Cleaning           → src/preprocessing/data_cleaning.py
-      │
-      ▼
-Feature Engineering     → src/features/feature_engineering.py
-      │
-      ▼
-Model Training          → src/training/train_model.py, hyperparameter_tuning.py
-      │
-      ▼
-Experiment Tracking     → MLflow (mlruns/mlflow.db)
-      │
-      ▼
-Evaluation               → src/evaluation/evaluate_model.py
-      │
-      ▼
-Prediction Pipeline      → src/prediction/predict.py
-      │
-      ▼
-Dashboard                → dashboard/app.py (Streamlit)
+macro-sentinel/
+├── config/              # Pipeline configuration (config.yaml)
+├── dashboard/           # Streamlit app (app.py)
+├── data/                # raw / interim / processed data (gitignored)
+├── models/              # Trained model artifacts (gitignored)
+├── mlruns/               # MLflow experiment tracking store (gitignored)
+├── notebooks/           # EDA and exploration scripts
+├── reports/             # Architecture docs, EDA summary, figures, metrics
+├── scripts/             # Utility scripts (e.g. synthetic data generation)
+├── src/                 # Core package: ingestion, preprocessing, features,
+│                         #   training, evaluation, prediction, validation, utils
+├── tests/               # Pytest test suite
+├── main.py              # Single entrypoint for the ML pipeline
+├── setup.py             # Package metadata
+└── requirements.txt      # Python dependencies
 ```
 
-Full write-up in [`reports/architecture.md`](reports/architecture.md), business case in
-[`reports/business_understanding.md`](reports/business_understanding.md), and EDA findings in
-[`reports/eda_summary.md`](reports/eda_summary.md).
+## Getting Started
 
----
-
-## Tech stack
-
-- **Data & ML**: pandas, numpy, scikit-learn, XGBoost, LightGBM
-- **Experiment tracking**: MLflow
-- **Dashboard**: Streamlit, Plotly
-- **Config-driven**: every stage reads from `config/config.yaml` — no hardcoded paths or params
-- **Testing**: pytest
-- **Deployment**: Docker / docker-compose, Render, Streamlit Community Cloud
-
----
-
-## Quickstart (local)
-
-> Requires Python 3.10+.
+### 1. Clone and set up the environment
 
 ```bash
 git clone https://github.com/Shubham03-hub/Macro-Sentinel-AI-Geo-Economic-Stress-Country-Risk-Platform.git
 cd Macro-Sentinel-AI-Geo-Economic-Stress-Country-Risk-Platform
 
 python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+source .venv/bin/activate      # Windows: .venv\Scripts\Activate.ps1
+
+pip install --upgrade pip
 pip install -r requirements.txt
-
-# generate the synthetic country-year dataset (skip if you're dropping in real CSVs)
-python scripts/generate_synthetic_data.py
-
-# run the full pipeline: preprocess -> features -> train -> evaluate -> predict
-python main.py --stage all
-
-# launch the dashboard
-streamlit run dashboard/app.py
 ```
 
-Dashboard: **http://localhost:8501**
-MLflow UI (optional): `mlflow ui --backend-store-uri sqlite:///mlruns/mlflow.db` → **http://localhost:5000**
-
-> ⚠️ **`data/raw/`, `data/interim/`, `data/processed/`, `models/`, `mlruns/`, and `logs/` are
-> git-ignored on purpose** (raw data and trained artifacts don't belong in version control).
-> That means a fresh clone of this repo has none of them — you must run
-> `generate_synthetic_data.py` and `main.py --stage all` once before the dashboard has anything
-> to show. This is the #1 reason a freshly cloned copy looks broken: it isn't, it just hasn't
-> been run yet.
-
-### Individual pipeline stages
+### 2. Run the ML pipeline
 
 ```bash
+# Run the full pipeline (preprocess → features → train → evaluate → predict)
+python main.py --stage all
+
+# Or run a single stage
 python main.py --stage preprocess
 python main.py --stage features
 python main.py --stage train
@@ -135,99 +66,32 @@ python main.py --stage evaluate
 python main.py --stage predict
 ```
 
-### Run tests
+### 3. Launch the dashboard
 
 ```bash
-pytest
+streamlit run dashboard/app.py
 ```
 
----
+The app opens at `http://localhost:8501`, with the Netflix-style crimson-to-black gradient theme and glowing serif headlines applied automatically.
+
+### 4. (Optional) View MLflow experiment tracking
+
+```bash
+mlflow ui --backend-store-uri mlruns
+```
 
 ## Docker
 
+The project also ships with a `Dockerfile` and `docker-compose.yml` for containerized deployment:
+
 ```bash
-# one-time: populate data/models by running the pipeline inside a container
-docker compose run --rm trainer
-
-# start the dashboard
-docker compose up dashboard
-
-# optional: MLflow UI
-docker compose --profile tools up mlflow-ui
+docker compose up --build
 ```
 
-Or without compose:
-```bash
-docker build -t macro-sentinel .
-docker run -p 8501:8501 -v $(pwd)/data:/app/data -v $(pwd)/models:/app/models macro-sentinel
-```
+## Tech Stack
 
----
-
-## Deploying the dashboard publicly (Render / Streamlit Cloud)
-
-Both platforms need `data/processed/`, `models/`, and `mlruns/` to exist since they're not in
-the repo. Two options:
-
-1. **Commit a pre-generated snapshot** of `data/processed/`, `models/`, and `reports/` (simplest
-   — fine for a portfolio/demo deployment that doesn't need to retrain live), or
-2. **Run `python main.py --stage all` as a build/startup step** so the deployment always
-   reflects a fresh pipeline run.
-
-Full platform-specific steps (Render disk config, Streamlit Cloud settings) are in
-[`reports/deployment_guide.md`](reports/deployment_guide.md).
-
----
-
-## Project structure
-
-```
-macro-sentinel/
-├── main.py                    # single CLI entrypoint (--stage preprocess|features|train|evaluate|predict|all)
-├── config/config.yaml         # all paths, params, model grids, risk thresholds — single source of truth
-├── src/
-│   ├── ingestion/              # loads + joins the 4 raw CSVs
-│   ├── validation/             # schema + data quality checks
-│   ├── preprocessing/          # cleaning, imputation, winsorizing
-│   ├── features/                # lags, rolling windows, z-scores, interactions
-│   ├── training/                # model training + hyperparameter search
-│   ├── evaluation/              # champion model evaluation
-│   ├── prediction/              # scoring + risk categorization
-│   ├── monitoring/              # pipeline/data monitoring
-│   └── utils/                    # config loader, logger, model loader, helpers
-├── dashboard/app.py            # Streamlit executive dashboard
-├── scripts/generate_synthetic_data.py
-├── notebooks/01_eda.py
-├── reports/                     # business case, architecture, EDA, deployment guide, metrics
-├── tests/                       # pytest suite
-├── Dockerfile / docker-compose.yml
-└── requirements.txt
-```
-
----
-
-## Dataset
-
-Four CSVs are expected in `data/raw/` (World-Bank-style schema; no live feed was available at
-build time, so `scripts/generate_synthetic_data.py` fabricates all four realistically — swap in
-a licensed feed later and nothing downstream changes, since every stage reads only the CSV
-schema, not the generator):
-
-| File | Contents |
-|---|---|
-| `country_metadata.csv` | Static country attributes (region, income group, archetype) |
-| `country_year_indicators.csv` | Annual macro panel — GDP growth, inflation, unemployment, debt, FX, governance, trade, FDI |
-| `economic_stress_score.csv` | Modelling target |
-| `indicator_dictionary.csv` | Human-readable indicator definitions (used for docs/dashboard tooltips) |
-
-Current synthetic dataset: 950 country-year observations, 50 countries, 2005–2023.
-
----
+Python · pandas · scikit-learn · XGBoost · LightGBM · MLflow · Streamlit · Plotly
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
-
-## Contributing
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+This project is licensed under the [MIT License](LICENSE).
