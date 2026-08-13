@@ -1,6 +1,6 @@
 # 🌍 Macro Sentinel — AI Geo-Economic Stress & Country Risk Platform
 
-Macro Sentinel is an end-to-end machine learning platform that predicts **geo-economic stress scores** for countries and translates them into interpretable **risk categories**. It covers the full pipeline — data ingestion, preprocessing, feature engineering, model training/tracking with MLflow, evaluation, and an interactive Streamlit dashboard styled with a cinematic dark gradient theme.
+Macro Sentinel is an end-to-end machine learning platform that predicts **geo-economic stress scores** for countries and translates them into interpretable **risk categories**. It covers the full pipeline  data ingestion, preprocessing, feature engineering, model training/tracking with MLflow, evaluation, and an interactive Streamlit dashboard styled with a cinematic dark gradient theme.
 
 ## Dashboard Preview
 
@@ -124,3 +124,9 @@ Python · pandas · scikit-learn · XGBoost · LightGBM · MLflow · Streamlit �
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Author
+
+**Shubham Panchal**
+Data Analytics | Data Science | AI | Machine Learning | Business Intelligence
+LinkedIn: [linkedin.com/in/shubham-panchal-a100282a8](https://linkedin.com/in/shubham-panchal-a100282a8)
