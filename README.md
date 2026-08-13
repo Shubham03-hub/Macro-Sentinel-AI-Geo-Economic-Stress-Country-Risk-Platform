@@ -4,9 +4,38 @@ Macro Sentinel is an end-to-end machine learning platform that predicts **geo-ec
 
 ## Dashboard Preview
 
-![Macro Sentinel Dashboard](reports/figures/dashboard_screenshot.png)
+![Macro Sentinel Dashboard](reports/figures/dashboard/macro_sentinel.png)
 
 *Country-level stress scoring, trend forecasting, and risk driver analysis — presented in a Netflix-inspired dark UI (crimson-to-black gradient, glowing serif headlines, glass-panel metric cards).*
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="reports/figures/dashboard/global_risk_overview.png" alt="Global Risk Overview map" width="100%">
+      <p align="center"><sub><b>Global Risk Overview</b> — world map of country-level stress scores</sub></p>
+    </td>
+    <td width="50%">
+      <img src="reports/figures/dashboard/risk_category_distribution.png" alt="Risk Category Distribution donut chart" width="100%">
+      <p align="center"><sub><b>Risk Category Distribution</b> — share of countries by risk tier</sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="reports/figures/dashboard/country_explorer.png" alt="Country Explorer panel" width="100%">
+      <p align="center"><sub><b>Country Explorer</b> — per-country stress score trend & forecast</sub></p>
+    </td>
+    <td width="50%">
+      <img src="reports/figures/dashboard/indicator_trend_analysis.png" alt="Indicator Trend Analysis chart" width="100%">
+      <p align="center"><sub><b>Indicator Trend Analysis</b> — multi-country indicator comparison</sub></p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <img src="reports/figures/dashboard/global_model.png" alt="Key Macroeconomic Drivers chart" width="100%">
+      <p align="center"><sub><b>Key Macroeconomic Drivers</b> — global feature importance behind the model's predictions</sub></p>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
